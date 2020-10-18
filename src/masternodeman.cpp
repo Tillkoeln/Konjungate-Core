@@ -680,9 +680,9 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
 
         std::string errorMessage = "";
         if(!mnEngineSigner.VerifyMessage(pubkey, vchSig, strMessage, errorMessage)){
-            LogPrintf("dsee - Got bad masternode address signature\n");
-            Misbehaving(pfrom->GetId(), 100);
-            return;
+            LogPrintf("dsee - WARNING - Could not verify masternode address signature\n");
+            //Misbehaving(pfrom->GetId(), 100);
+            //return;
         }
 
         //search existing masternode list, this is where we update existing masternodes with new dsee broadcasts
@@ -755,13 +755,13 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
             }
 
             // verify that sig time is legit in past
-            // should be at least not earlier than block when 2,000,000 Konjungate tx got MASTERNODE_MIN_CONFIRMATIONS
+            // should be at least not earlier than block when 2,750,000 Konjungate tx got MASTERNODE_MIN_CONFIRMATIONS
             uint256 hashBlock = 0;
             GetTransaction(vin.prevout.hash, tx, hashBlock);
             map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(hashBlock);
            if (mi != mapBlockIndex.end() && (*mi).second)
             {
-                CBlockIndex* pMNIndex = (*mi).second; // block for 2,000,000 Konjungate tx -> 1 confirmation
+                CBlockIndex* pMNIndex = (*mi).second; // block for 2,750,000 Konjungate tx -> 1 confirmation
                 CBlockIndex* pConfIndex = FindBlockByHeight((pMNIndex->nHeight + MASTERNODE_MIN_CONFIRMATIONS - 1)); // block where tx got MASTERNODE_MIN_CONFIRMATIONS
                 if(pConfIndex->GetBlockTime() > sigTime)
                 {
@@ -841,9 +841,9 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
                 std::string errorMessage = "";
                 if(!mnEngineSigner.VerifyMessage(pmn->pubkey2, vchSig, strMessage, errorMessage))
                 {
-                    LogPrintf("dseep - Got bad masternode address signature %s \n", vin.ToString().c_str());
+                    LogPrintf("dseep - WARNING - Could not verify masternode address signature %s \n", vin.ToString().c_str());
                     //Misbehaving(pfrom->GetId(), 100);
-                    return;
+                    //return;
                 }
 
                 pmn->lastDseep = sigTime;
@@ -897,8 +897,9 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
                 std::string errorMessage = "";
                 if(!mnEngineSigner.VerifyMessage(pmn->pubkey2, vchSig, strMessage, errorMessage))
                 {
-                    LogPrintf("mvote - Got bad Masternode address signature %s \n", vin.ToString().c_str());
-                    return;
+                    LogPrintf("mvote - WARNING - Could not verify masternode address signature %s \n", vin.ToString().c_str());
+                    //Misbehaving(pfrom->GetId(), 100);
+                    //return;
                 }
 
                 pmn->nVote = nVote;
